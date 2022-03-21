@@ -1,0 +1,31 @@
+<style>
+  svg {
+    background-color: pink;
+  }
+</style>
+<head>
+   <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+</head>
+
+<body>
+  <script>
+    // Note: When using attr() width and height attributes do not have units. This is the building block of scaling - the element will always have a 5:1 width to height ratio, no matter what the zoom level is.
+
+
+    const dataset = [12, 31, 22, 17, 25, 18, 29, 14, 9];
+
+    const w = 500;
+    const h = 100;
+
+    const svg = d3.select("body")
+                  // Add your code below this line
+                   .append("svg")
+                   .style("width",w)
+                   .attr("height",h)
+
+
+
+
+                  // Add your code above this line
+  </script>
+</body>

@@ -1,0 +1,135 @@
+<style>
+  .dot:hover {
+    fill: brown;
+  }
+  .rigthh{
+    position: absolute;
+    left: 300px;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">SCATTER</title>
+</head>
+
+<body>
+  <script src="/FCCbundle.js"></script>
+  <!-- <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+
+  <script>
+
+
+    // const dataset = [["1947-01-01", 243.1], ["1947-04-01", 246.3], ["1947-07-01", 250.1], ["1947-10-01", 260.3], ["1948-01-01", 266.2], etc
+    fetch(
+  "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    res.forEach(function (d) {
+
+var parsedTime = d.Time.split(':');
+d.Time = new Date(1970, 0, 1, 0, parsedTime[0], parsedTime[1]);
+});
+    dataset = res;
+    {console.log(dataset)}
+    barIt();
+  });
+
+
+    function barIt(){
+    let box = d3
+      .select("body")
+      .append("div");
+
+      // var timeFormat = d3.timeFormat('%M:%S');
+    let tooltip = box
+      .append("div")
+      .attr("id", "tooltip");
+    const w = 800;
+    const h = 400;
+    const padding = 60;
+
+    const xScale = d3.scaleTime()
+      .domain([new Date("1993"), new Date("2016")])
+      .range([padding, w - padding]);
+    
+      // const yScale = d3.scaleLinear()
+      // .domain([ 2390, 2210])
+      // .range([h - padding, padding]);
+     
+    const yScale = d3.scaleLinear()
+      .domain([ d3.max(dataset, (d) => d.Seconds),d3.min(dataset, (d) => d.Seconds)])
+      .range([h - padding, padding]);
+console.log(xScale(new Date("1997")),"looky here")
+    const svg = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+ 
+    svg.selectAll("circle")
+      .data(dataset)
+      .enter()
+      .append("circle")
+      .attr('data-xvalue', (d) => d.Year.toString())
+      .attr('data-yvalue', (d) => d.Time.toISOString())
+      // consle below works
+      // .attr("cx", (d, i) => {xScale(new Date(d.Year.toString())) ;console.log(xScale(new Date(d.Year.toString())))})
+      .attr("cx", (d, i) => xScale(new Date(d.Year.toString())) )
+      .attr("cy", (d) => yScale(d.Seconds))
+      .attr("r", 5)
+
+
+      
+      .attr("fill", "#E27360")
+      .attr("class", "dot")
+      .on("mouseover", (d, i) =>
+        tooltip
+          .style("display", "inline-block")
+
+          .html("Date: " + i.Year + " " + "Time:" + i.Seconds + " seconds")
+          .attr("data-date", i[0])
+          .attr("class","rigthh")
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none"))
+      .append("title")
+      .text((d,i) => d.Year + ", "+ d.Seconds +" seconds") ;
+
+
+
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+      .attr("id", "x-axis")
+      .attr("transform", "translate(0,340)")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("id", "y-axis")
+      .attr("transform", "translate(" + padding + ",0" + ")")
+      .call(yAxis)
+
+    //   function printt() {
+    //   let i = 1
+    //   console.log(xScale(1947))
+    // }  
+    // return (
+    //   "printt": printt
+    // ) ////have to abandno this ... haven't figured it out
+}
+var funcy = barIt()
+
+    //a print function to test scale.. hehe
+    
+ 
+  
+  </script>
+  <div class="theThing"></div>
+  <button onclick="funcy.printt()" style="display:inline-block;">click Me</button>
+</body>

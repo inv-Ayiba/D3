@@ -1,0 +1,131 @@
+<style>
+  .bar:hover {
+    fill: brown;
+  }
+  .rigthh{
+    position: absolute;
+    left: 300px;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">Heat</title>
+</head>
+
+<body>
+  <script src="/FCCbundle.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+
+  <script>
+
+// Heat.json
+    // const dataset = [["1947-01-01", 243.1], ["1947-04-01", 246.3], ["1947-07-01", 250.1], ["1947-10-01", 260.3], ["1948-01-01", 266.2], etc
+    fetch(
+  "/Heat.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    // fix below
+    baseTemp=8.66
+    dataset = res;
+    // console.log(dataset)
+    
+    let box = d3
+      .select("body")
+      .append("div");
+
+ 
+    let tooltip = box
+      .append("div")
+      .attr("id", "tooltip");
+    const w = 800;
+    const h = 800;
+    const padding = 60;
+
+    const yScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => baseTemp - d.variance), d3.max(dataset, (d) => baseTemp - d.variance)])
+      .range([padding, w - padding]);
+
+// console.log(d3.max(dataset, (d) => d.variance),"coconut")
+
+// console.log(yScale(-6.976),"coconut")
+
+// console.log(yScale(5.228),"coconut")
+
+    const xScale = d3.scaleLinear()
+      .domain([0, d3.max(dataset, (d) => d.month)])
+      .range([h - padding, padding]);
+
+      console.log(xScale(1),"coconut")
+      console.log(xScale(1.1),"coconut")
+
+    const svg = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+      .attr('data-var', (d) => d.variance)
+      .attr('data-month', (d) => d.month)
+      // static value 4 and 230 ..trying to undertand how it works ..... failed at that
+      // .attr("x", (d, i) => xScale(d.month+(i*4/dataset.length)) + 230)
+      .attr("x", (d, i) => 61 + (i*0.23))
+      .attr("y", (d) => yScale(baseTemp - d.variance))
+
+
+      .attr("width", 0.2)
+      
+      .attr("height", (d, i) => (h - (yScale(baseTemp - d.variance))) - padding)
+      .attr("fill", "black")
+      .attr("class", "bar") 
+      .on("mouseover", (d, i) =>
+        tooltip
+          .style("display", "inline-block")
+
+          // .html("Date: "+ i.year +"Month: "+ i.month ) d read [object mouse event]
+          .html("Date: "+ i.year +" Month: "+ i.month+" Variance: "+ i.variance )
+          .attr("data-date", i[0])
+          .attr("class","rigthh")
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none"))
+      .append("title")
+      .text((d) => d.year +","+ d.month ) ;
+      // #E27360"
+      console.log((w-padding)/dataset.length,"(w-padding)/dataset.length") ;
+      console.log(dataset.length,"dataset.length") ;
+
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+      .attr("id", "x-axis")
+      .attr("transform", "translate(0,"+(h-padding)+")")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("id", "y-axis")
+      .attr("transform", "translate(" + padding + ",0" + ")")
+      .call(yAxis)
+} );
+
+
+    //a print function to test scale.. hehe
+    function print() {
+      i = 1
+      console.log(xScale(1947.25))
+    }  
+ 
+  
+  </script>
+  <div class="theThing"></div>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>

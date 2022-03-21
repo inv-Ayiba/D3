@@ -1,0 +1,2 @@
+(function () {
+  console.log("invoked")})();
