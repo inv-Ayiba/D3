@@ -56,6 +56,10 @@
       .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
       .range([padding, w - padding]);
 
+      const yearXScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.year), d3.max(dataset, (d) => d.year)])
+      .range([padding, w - padding]);
+
     const yScale = d3.scaleLinear()
       .domain([d3.max(dataset, (d) => d.month)+1,0])
       .range([h - padding, padding]);
@@ -100,15 +104,10 @@
       .append("title")
       .text((d) => 'data-var  :' +  d.variance+ 'data-month  :'+  d.month+ 'data-year  :' +  d.year) ;
 
-for(p=0;p<2;p++){
-  // console.log(pallete[colorScale(dataset[p].variance)],"cool"+dataset[p].variance)
-  // console.log(dataset[p].variance,"cool"+p)
-  console.log(pallete.length,"cool"+p)
-
-}
 
 
-    const xAxis = d3.axisBottom(xScale);
+
+    const xAxis = d3.axisBottom(yearXScale);
     const yAxis = d3.axisLeft(yScale);
 
     svg.append("g")
@@ -120,6 +119,62 @@ for(p=0;p<2;p++){
       .attr("id", "y-axis")
       .attr("transform", "translate(" + padding + ",0" + ")")
       .call(yAxis) ;
+
+      // legend begins
+    dataRange = [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]
+    
+    dataTarget = dataRange
+    console.log(dataTarget.length)
+
+    legendLength=240  
+
+    const legendxScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+      .range([padding, legendLength+padding]);
+
+
+    const svg2 = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+    svg2.selectAll("rect")
+      .data(dataTarget)
+      .enter()
+      .append("rect")
+      // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
+      .attr("x", (d, i) => (i*legendLength/dataTarget.length) + 60)
+
+      .attr("y", yScale(12)-10)
+
+
+      .attr("width", legendLength/dataTarget.length)
+      // .attr("width", 30)
+      .attr("height", (d, i) => 33)
+      .attr("fill", (d) => pallete[parseInt(colorScale(d))])
+      .attr("class", "bar")
+      .on("mouseover", (d, i) =>
+        tooltip
+          .style("display", "inline-block")
+
+          .html('data-var  :' +  i)
+          
+          .attr("class","rigthh")
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none"))
+      .append("title")
+      .text((d) => 'data-var  :' +  d) ;
+
+
+
+
+    
+    const legendxAxis = d3.axisBottom(legendxScale);
+    svg2.append("g")
+      .attr("id", "x-axis")
+      .attr("transform", "translate(0,"+(h-padding)+")")
+      .call(legendxAxis);
+   
 } );
 
 
