@@ -121,13 +121,13 @@ fakeVariable = "delete after fork"
       .call(yAxis) ;
 
       // legend begins
-    dataRange = [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]
+    const dataRange = [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]
     
-    dataTarget = dataRange
-    console.log(dataTarget.length)
+    const dataTarget = dataRange
+    // console.log(dataTarget.length)
 
     legendLength=240  
-
+    const moveUp = 325
     const legendxScale = d3.scaleLinear()
       .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
       .range([padding, legendLength+padding]);
@@ -145,7 +145,7 @@ fakeVariable = "delete after fork"
       // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
       .attr("x", (d, i) => (i*legendLength/dataTarget.length) + 60)
 
-      .attr("y", yScale(12)-10)
+      .attr("y", yScale(12)-(10 + moveUp))
 
 
       .attr("width", legendLength/dataTarget.length)
@@ -172,7 +172,7 @@ fakeVariable = "delete after fork"
     const legendxAxis = d3.axisBottom(legendxScale);
     svg2.append("g")
       .attr("id", "x-axis")
-      .attr("transform", "translate(0,"+(h-padding)+")")
+      .attr("transform", "translate(0,"+(h-(padding + moveUp))+")")
       .call(legendxAxis);
    
 } );
