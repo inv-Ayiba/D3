@@ -13,32 +13,28 @@
 
 
 
-  <!-- <script src="/d3-7.3.0/package/dist/d3.min.js"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script>
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
   <title id="title">Heat</title>
 </head>
 
 <body>
-  <!-- <script src="/FCCbundle.js"></script> -->
-   <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+  <script src="/FCCbundle.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
   <p id="description" style="color:rgb(40, 151, 109);text-align:center;font-weight: bold;">A Heat Map of The US from 1753-01 to 2015-09 </p>
 
   <script>
 // Heat.json
     // const dataset = [["1947-01-01", 243.1], ["1947-04-01", 246.3], ["1947-07-01", 250.1], ["1947-10-01", 260.3], ["1948-01-01", 266.2], etc
-//     fetch(
-//   "/Heat.json"
-// )
-
-fetch(
-  "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json"
+    fetch(
+  "/Heat.json"
 )
   .then((res) => res.json())
   .then((res) => {
     // fix below
-    dataset = res.monthlyVariance;
-    console.log(dataset)
-    // console.log(d3.max(dataset, (d) => d.year),"oopp")
+    dataset = res;
+    // console.log(dataset)
+    console.log(d3.max(dataset, (d) => d.year),"oopp")
     let box = d3
       .select("body")
       .append("div");
