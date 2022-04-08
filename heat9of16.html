@@ -1,6 +1,6 @@
 <style>
   .cell:hover {
-    fill: brown;
+    fill: black;
     margin: 0.5em;
   }
   .rigthh{
@@ -26,8 +26,9 @@
   <script>
 // Heat.json
     // const dataset = [["1947-01-01", 243.1], ["1947-04-01", 246.3], ["1947-07-01", 250.1], ["1947-10-01", 260.3], ["1948-01-01", 266.2], etc
+    
 //     fetch(
-//   "/Heat.json"
+//   "/HeatFcc.json"
 // )
 
 fetch(
@@ -37,7 +38,6 @@ fetch(
   .then((res) => {
     // fix below
     dataset = res.monthlyVariance;
-    console.log(dataset)
     // test this stage stash thing
     
     let box = d3
@@ -53,8 +53,8 @@ docommit = "bllop"
     const padding = 60;
     const spaceBar =((w-60 )/42)
     const spaceBarw = 5
-    // pallete=["#FF0000", "#FF0a00", "#FF1400", "#FF1e00", "#FF2800", "#FF3200", "#FF3c00", "#FF4600", "#FF5000", "#FF5a00", "#FF6400", "#FF6e00", "#FF7800", "#FF8200", "#FF8c00", "#FF9600", "#FFa000", "#FFaa00", "#FFb400", "#FFbe00", "#FFc800", "#FFd200", "#FFdc00", "#FFe600", "#FFf000", "#FFfa00"]
-    pallete =['#0500ff', '#0400ff', '#0300ff', '#0200ff', '#0100ff','#0000ff', '#0002ff', '#0012ff', '#0022ff', '#0032ff','#0044ff', '#0054ff', '#0064ff', '#0074ff', '#0084ff','#0094ff', '#00a4ff', '#00b4ff', '#00c4ff', '#00d4ff','#00e4ff', '#00fff4', '#00ffd0', '#00ffa8', '#00ff83','#00ff5c', '#00ff36', '#00ff10', '#17ff00', '#3eff00','#65ff00', '#8aff00', '#b0ff00', '#d7ff00', '#fdff00','#FFfa00', '#FFf000', '#FFe600', '#FFdc00', '#FFd200','#FFc800', '#FFbe00', '#FFb400', '#FFaa00', '#FFa000','#FF9600', '#FF8c00', '#FF8200', '#FF7800', '#FF6e00','#FF6400', '#FF5a00', '#FF5000', '#FF4600', '#FF3c00','#FF3200', '#FF2800', '#FF1e00', '#FF1400', '#FF0a00','#FF0000', '#FF0010', '#FF0020', '#FF0030', '#FF0040','#FF0050', '#FF0060', '#FF0070', '#FF0080', '#FF0090','#FF00A0', '#FF00B0', '#FF00C0', '#FF00D0', '#FF00E0','#FF00F0', '#FF01F0', '#FF02F0', '#FF03F0', '#FF04F0','#FF05F0', '#FF06F0', '#FF07F0', '#FF08F0', '#FF09F0','#FF0AF0', '#FF0BF0', '#FF0CF0', '#FF0DF0', '#FF0EF0']
+const monthBaby = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+ pallete =['#0500ff', '#0400ff', '#0300ff', '#0200ff', '#0100ff','#0000ff', '#0002ff', '#0012ff', '#0022ff', '#0032ff','#0044ff', '#0054ff', '#0064ff', '#0074ff', '#0084ff','#0094ff', '#00a4ff', '#00b4ff', '#00c4ff', '#00d4ff','#00e4ff', '#00fff4', '#00ffd0', '#00ffa8', '#00ff83','#00ff5c', '#00ff36', '#00ff10', '#17ff00', '#3eff00','#65ff00', '#8aff00', '#b0ff00', '#d7ff00', '#fdff00','#FFfa00', '#FFf000', '#FFe600', '#FFdc00', '#FFd200','#FFc800', '#FFbe00', '#FFb400', '#FFaa00', '#FFa000','#FF9600', '#FF8c00', '#FF8200', '#FF7800', '#FF6e00','#FF6400', '#FF5a00', '#FF5000', '#FF4600', '#FF3c00','#FF3200', '#FF2800', '#FF1e00', '#FF1400', '#FF0a00','#FF0000', '#FF0010', '#FF0020', '#FF0030', '#FF0040','#FF0050', '#FF0060', '#FF0070', '#FF0080', '#FF0090','#FF00A0', '#FF00B0', '#FF00C0', '#FF00D0', '#FF00E0','#FF00F0', '#FF01F0', '#FF02F0', '#FF03F0', '#FF04F0','#FF05F0', '#FF06F0', '#FF07F0', '#FF08F0', '#FF09F0','#FF0AF0', '#FF0BF0', '#FF0CF0', '#FF0DF0', '#FF0EF0']
     var color = d3.scaleOrdinal(pallete);
     // ((w-60 )/49) 
     const xScale = d3.scaleTime()
@@ -73,7 +73,10 @@ docommit = "bllop"
       .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
       //length greater than actual index
       .range([0,pallete.length-1]);
-
+      
+      const monthyScale = d3.scaleLinear()
+      .domain([11,0])
+      .range([h - padding, padding]);
 
     const svg = d3.select("body")
       .append("svg")
@@ -86,7 +89,7 @@ docommit = "bllop"
       .append("rect")
       // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
       .attr('data-temp', (d) => d.variance)
-      .attr('data-month', (d) => d.month)
+      .attr('data-month', (d) => d.month-1)
       .attr('data-year', (d) => d.year)
       .attr("x", (d, i) => ((d.year-1753 )* spaceBarw)+60)
 //why -10 
@@ -96,6 +99,7 @@ docommit = "bllop"
       .attr("width", spaceBarw)
       .attr("height", (d, i) => 33)
       .attr("fill", (d) => pallete[parseInt(colorScale(d.variance))])
+      .attr("fi", (d) => console.log(d.month-1,"koop"))
       .attr("class", "cell")
       .on("mouseover", (d, i) =>
         tooltip
@@ -109,11 +113,12 @@ docommit = "bllop"
       .append("title")
       .text((d) => 'data-var  :' +  d.variance+ 'data-month  :'+  d.month+ 'data-year  :' +  d.year) ;
 
+    console.log("bannana split")
 
-
-
+    
     const xAxis = d3.axisBottom(yearXScale);
-    const yAxis = d3.axisLeft(yScale);
+
+    const yAxis = d3.axisLeft(monthyScale).ticks(12).tickFormat(x => monthBaby[x]);
 
     svg.append("g")
       .attr("id", "x-axis")
@@ -129,7 +134,6 @@ docommit = "bllop"
     const dataRange = [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]
     
     const dataTarget = dataRange
-    // console.log(dataTarget.length)
 
     legendLength=240  
     const moveUp = 325
@@ -186,7 +190,6 @@ docommit = "bllop"
     //a print function to test scale.. hehe
     function print() {
       i = 1
-      console.log(xScale(1947.25))
     }  
  
   
