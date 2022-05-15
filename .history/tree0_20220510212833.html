@@ -1,0 +1,170 @@
+<style>
+
+
+
+  .cell:hover {
+    fill: #0300ff;
+    margin: 0.5em;
+  }
+
+  .rigthh {
+    position: absolute;
+    left: 300px;
+  }
+
+  .statesLines {
+    fill: none;
+    stroke: rgb(236, 10, 10);
+    stroke-linejoin: round;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">tEMPORRARY</title>
+</head>
+
+<body>
+
+
+  <script src="/FCCbundle.js"></script>
+  <script src="/topojson.min.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+  <p id="description" style="color:rgb(40, 151, 109);text-align:center;font-weight: bold;">United States Education </p>
+  <p id="description" style="color:rgb(70, 100, 89);text-align:center;"> Adults age 25 and older with a bachelor's degree or higher (2010-2014) </p>
+  <script>
+    pallete = ["#0400ff", "#00FF00", "#FFFF00", "#FF7F00", "#4B0082", "#FF0000"]
+
+    var colouring = d3.scaleThreshold().domain(d3.range(2.6, 75.1, 14.5)).range(pallete);
+
+
+    var pathywatty = d3.geoPath();
+    
+    fetch(
+      "/tree_video-game-sales-data.json"
+    )
+      .then((res) => res.json())
+      .then((res) => {
+
+        videoGameSalesData = res;
+        fetch(
+          "tree_kickstarter-funding-data.json" )
+          .then((res) => res.json())
+          .then((res) => {
+
+            user_education = res;
+
+
+            let box = d3
+              .select("body")
+              .append("div");
+
+            let tooltip = box
+              .append("div")
+              .attr("id", "tooltip");
+            const w = 1000;
+            const h = 650;
+            const padding = 60;
+
+            var datapoint = videoGameSalesData
+            //variable
+
+            var root = d3.hierarchy(datapoint)
+            .sum((d) => d.value)
+            .sort( (a, b) => d3.descending( a.value,b.value));
+
+            var treemap = d3.treemap().size([w, h]).paddingInner(1);
+            treemap(root);
+
+            const treeLeaves = root.leaves()
+
+            const svg1 = d3.select("body")
+              .append("svg")
+              .attr("width", w)
+              .attr("height", h);
+
+            svg1.selectAll("rect")
+              .data(treeLeaves)
+              .enter()
+              .append("rect")
+              .attr('transform', (d)=> 'translate(' + d.x0 + ',' + d.y0 + ')')
+
+              // .attr('class', 'county')
+              .attr('width', (d) => d.x1 - d.x0 )
+              .attr('height', (d) => d.y1 - d.y0 )
+              .attr('fill','#00c3ff') ;
+
+             svg1 .append('text')
+              .selectAll('tspan')
+               .data( (d)=> console.log(d.datapoint.name))
+              .enter()
+              .append('tspan')
+              .attr('x', 4)
+              .attr('y', (d, i) => 13 + i * 10)
+              .text( (d)=> "pppp" + d);
+              
+             // .on("mouseover", (d, i) =>
+              //   tooltip
+              //     .style("display", "inline-block")
+              //     .attr("id", "tooltip")
+              //     .attr('data-education', (d) => { target = user_education.filter((targ) => targ.fips === i.id); return target[0].bachelorsOrHigher; })
+              //      // .html((d) =>{target =user_education.filter((targ)=>targ.fips ===i.id);return (target[0]['area_name'] +', ' + target[0]['state'] +': ' + target[0].bachelorsOrHigher + '%' );})
+              // )
+              // .on("mouseout", (d) => tooltip.style("display", "none").attr("id", "tooltip")
+              // )
+              // .append("title")
+              // .text((i) => {target = user_education.filter((targ) => targ.fips === i.id);
+              //   return (
+              //     target[0]['area_name'] +
+              //     ', ' +
+              //     target[0]['state'] +
+              //     ': ' +
+              //     target[0].bachelorsOrHigher +
+              //     '%'
+              //   );
+              // });
+
+
+            // const svg2 = d3.select("svg")
+            //   .append("g")
+            //   .attr('id', 'legend');
+
+            // svg2.selectAll("rect")
+            //   .data(colouring.range().map((d) => colouring.invertExtent(d)))
+            //   .enter()
+            //   .append('rect')
+            //   .attr('height', 8)
+            //   .attr('x', (d) => xout(d[0]))
+            //   .attr('y', 8)
+            //   .attr('width', (d) => d[0] && d[1] ? xout(d[1]) - xout(d[0]) : xout(null))
+            //   .attr('fill', (d) => colouring(d[0]));
+
+            // svg2.append('text')
+            //   .attr('class', 'caption')
+            //   .attr('x', xout.range()[0])
+            //   .attr('y', -10)
+            //   .attr('fill', '#000')
+            //   .attr('text-anchor', 'start')
+            //   .attr('font-weight', 'bold');
+
+
+            // svg2.call(
+            //   d3
+            //     .axisBottom(xout)
+            //     .tickSize(16)
+            //     .tickFormat((x) => Math.round(x) + '%')
+            //     .tickValues(colouring.domain())
+            // )
+            //   .select('.domain')
+            //   .remove();
+          });
+
+      });
+
+  </script>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>

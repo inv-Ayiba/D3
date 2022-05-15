@@ -1,0 +1,210 @@
+<style>
+  .cell:hover {
+    fill: #0300ff;
+    margin: 0.5em;
+  }
+  .rigthh{
+    position: absolute;
+    left: 300px;
+  }
+  .statesLines {
+    fill: none;
+    stroke: rgb(236, 10, 10);
+    stroke-linejoin: round;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">Choropleth</title>
+</head>
+
+<body>
+
+
+  <script src="/FCCbundle.js"></script>
+  <script src="/topojson.min.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+  <p id="description" style="color:rgb(40, 151, 109);text-align:center;font-weight: bold;">United States Education </p>
+
+  <script>
+pallete = ["#0400ff","#00FF00","#FFFF00","#FF7F00","#4B0082","#FF0000"]
+
+var colouring = d3.scaleThreshold().domain(d3.range(2.6, 75.1, 14.5)).range(pallete);
+
+
+var pathywatty = d3.geoPath();
+fetch(
+  "/choropleth_map_counties.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    
+    map_counties = res;
+    fetch(
+      "/choropleth_for_user_education.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    
+    user_education = res;
+    console.log("map_counties",map_counties,"user_education",user_education)
+    let box = d3
+      .select("body")
+      .append("div");
+ 
+    let tooltip = box
+      .append("div")
+      .attr("id", "tooltip");
+    const w = 1000;
+    const h = 900;
+    const padding = 60;
+    
+    
+    
+    
+    
+    
+    
+    
+
+    const svg1 = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+    svg1.selectAll("path")
+      .data(topojson.feature(map_counties, map_counties.objects.counties).features)
+      .enter()
+      .append("path")
+      .attr('class','county')
+      
+      .attr('data-fips', (d) => d.id)
+
+      .attr('data-education', (d) =>
+       {
+         target =user_education.filter((obj)=>obj.fips ===d.id);
+      return target[0].bachelorsOrHigher;
+      }
+      )
+      
+
+
+      
+      .attr("fill", (d) =>
+       {
+         target =user_education.filter((obj)=>obj.fips ===d.id);
+      return colouring(target[0].bachelorsOrHigher);
+      }
+      )
+      .attr("d", pathywatty)
+      .on("mouseover", (d,i) =>
+        tooltip
+         
+        .style("display", "inline-block")
+        .attr("id","tooltip")
+        .attr('data-education', (d) => {target =user_education.filter((obj)=>obj.fips ===i.id);return target[0].bachelorsOrHigher;})
+        
+           
+          // .html((d) =>{target =user_education.filter((obj)=>obj.fips ===i.id);return (target[0]['area_name'] +', ' + target[0]['state'] +': ' + target[0].bachelorsOrHigher + '%' );})
+          
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none").attr("id","tooltip")
+        
+        
+      )
+      .append("title")
+      .text((i) =>  {
+         target =user_education.filter((obj)=>obj.fips ===i.id);
+      return (
+                target[0]['area_name'] +
+                ', ' +
+                target[0]['state'] +
+                ': ' +
+                target[0].bachelorsOrHigher +
+                '%'
+              );
+      }) ;
+
+      svg1
+      .append('path')
+      .datum(
+        topojson.mesh(map_counties, map_counties.objects.states,  (a, b)=> a !== b) )
+      .attr('class', 'statesLines')
+      .attr('d', pathywatty);
+
+    
+    
+    
+    
+
+      
+
+  var x = d3.scaleLinear().domain([2.6, 75.1]).rangeRound([600, 860]);
+    
+    
+    
+    
+    
+    
+
+
+    const svg2 = d3.select("svg")
+    .append("g")
+    .attr('id','legend');
+      
+      
+      
+
+    svg2.selectAll("rect")
+    
+    .data(
+      colouring.range().map((d)=> {
+        d = colouring.invertExtent(d);
+        if (d[0] === null) {
+          console.log("suck balls")
+          d[0] = x.domain()[0];
+        }
+        if (d[1] === null) {
+          d[1] = x.domain()[1];
+        }
+        return d;
+      })
+    )
+    .enter()
+    .append('rect')
+    .attr('height', 8)
+    .attr('x', (d) =>  x(d[0]))
+    .attr('y',8)
+    .attr('width',(d) => d[0] && d[1] ? x(d[1]) - x(d[0]) : x(null))
+    .attr('fill', (d) =>colouring(d[0]));
+    
+  svg2.append('text')
+    .attr('class', 'caption')
+    .attr('x', x.range()[0])
+    .attr('y', -10)
+    .attr('fill', '#000')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', 'bold');
+    
+  
+    svg2.call(
+    d3
+      .axisBottom(x)
+      .tickSize(16)
+      .tickFormat((x) => Math.round(x) + '%')
+      .tickValues(colouring.domain())
+  )
+    .select('.domain')
+    .remove();
+} );
+
+});
+   
+  </script>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>

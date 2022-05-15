@@ -1,0 +1,192 @@
+<style>
+  div.tooltip {
+    position: absolute;
+    padding: 10px;
+    font: 12px Tableau;
+    background: rgba(204, 204, 71, 0.95);
+    box-shadow: 1px 1px 10px rgba(128, 128, 128, 0.6);
+    border: 0;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  svg {
+    font: 10px sans-serif;
+    text-align: center;
+    display: block;
+    margin: auto;
+  }
+
+  .cell:hover {
+    fill: #0300ff;
+    margin: 0.5em;
+  }
+
+  .rigthh {
+    position: absolute;
+    left: 300px;
+  }
+
+  .statesLines {
+    fill: none;
+    stroke: rgb(236, 10, 10);
+    stroke-linejoin: round;
+  }
+
+  #legend{
+    z-index: 5;
+  }
+  #mainThing{
+    z-index: 3;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">tEMPORRARY</title>
+</head>
+
+<body>
+
+
+  <script src="/FCCbundle.js"></script>
+  <script src="/topojson.min.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+  <p id="description" style="color:rgb(40, 151, 109);text-align:center;font-weight: bold;">United States Education </p>
+  <p id="description" style="color:rgb(70, 100, 89);text-align:center;"> Adults age 25 and older with a bachelor's
+    degree or higher (2010-2014) </p>
+  <button onClick="got;changeItAll();moviesF()">Movies Data Set</button> |
+  <script>
+   BUNCE = 90999
+    fetch(
+      "tree_kickstarter-funding-data.json")
+      .then((res) => res.json())
+      .then((res) => {
+
+        kickstarterData = res;
+
+console.log("Bunce",BUNCE)
+        dataObject = {
+      jsonn: kickstarterData, title: 'Kickstarter Pledges', description: 'Top 100 Most Pledged Kickstarter Campaigns Grouped By Category'
+      , categories: ["Product Design", "Tabletop Games", "Video Games", "Technology", "Hardware", "Sound", "Gaming Hardware", "Narrative Film", "3D Printing", "Television", "Web", "Wearables", "Food", "Games", "Sculpture", "Apparel", "Art", "Gadgets","Drinks"]
+
+      , colorss: ['#dbdb8d', '#00FF00', '#f7b6d2', '#7f7f7f', '#ff9896', '#c49c94', '#c5b0d5', '#1f77b4', '#98df8a', '#17becf', '#e377c2', '#9467bd', '#ff7f0e', '#9edae5', '#FF0000', '#4B0082', '#d62728', '#0400ff','#FFFF00']
+    };
+        let box = d3
+          .select("body")
+          .append("div");
+
+        let tooltip = box
+          .append("div")
+          .attr('class', 'tooltip')
+          .attr("id", "tooltip")
+          .style('opacity', 0);
+
+
+        const w = 800;
+        const h = 650;
+        const padding = 60;
+
+        var datapoint = dataObject["jsonn"]
+        var categories = dataObject["categories"]
+        var colorss = dataObject["colorss"]
+
+
+
+        // var got = console.log("printyyyy")
+        // var colouring = d3.scaleBand().domain(categories).range(colorss);
+        function colouring11(cat, colorStore, look) { return colorStore[cat.indexOf(look)] }
+
+        //variable
+        function Go() {
+
+          var root = d3.hierarchy(datapoint)
+            .sum((d) => d.value)
+            .sort((a, b) => d3.descending(a.value, b.value));
+
+          var treemap = d3.treemap().size([w, h]).paddingInner(1);
+          treemap(root);
+
+          const treeLeaves = root.leaves()
+
+          // console.log("treeLeaves:",treeLeaves);
+
+          var svg1 = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h)
+            .attr("id","mainThing");
+
+
+
+          okay = svg1.selectAll('g')
+            .data(treeLeaves)
+            .enter()
+            .append('g')
+            .attr('transform', (d) => 'translate(' + d.x0 + ',' + d.y0 + ')');
+
+          // .attr('class', 'county')
+
+          okay.append('rect')
+            // .attr('id',(d) => console.log(d) )
+            .attr('width', (d) => d.x1 - d.x0)
+            .attr('height', (d) => d.y1 - d.y0)
+            .attr('fill', (d) => {
+              // console.log(colouring11(categories, colorss, d.data.category));
+              // console.log(d.data.category)
+              return colouring11(categories, colorss, d.data.category)
+            })
+            .on("mousemove", (d, i) => {
+              tooltip.style('opacity', 0.9);
+
+              tooltip.html("Name : " + i.data.name + " || " + " Category: " + i.data.category + " || " + " Value: " + i.data.value)
+                .style('left', d.pageX + 10 + 'px')
+                .style('top', d.pageY - 28 + 'px');
+            })
+            .on("mouseout", () => tooltip.style('opacity', 0));
+
+
+
+          okay.append('text')
+            .selectAll('tspan')
+            .data((d) => d.data.name.split(/(?=[A-Z][^A-Z])/))
+            .enter()
+            .append('tspan')
+            .attr('x', 3)
+            .attr('y', (d, i) => 15 + i * 10)
+            .text((d) => d)
+            .attr("font-size", "11px");
+
+
+
+          const svg2 = d3.select("body")
+            .append("svg")
+            .attr('id', 'legend')
+            .attr('width', 300)
+            .attr('height', 30);
+
+          svg2.selectAll("rect")
+            .data(dataObject["categories"])
+            .enter()
+            .append('rect')
+            .attr('width', 30)
+            .attr('height', 30)
+            .attr('x', (d,i) => 200)
+            .attr('y', (d,i) => 630)
+            .attr('fill', "#FFFF00");
+
+           
+        }
+
+        Go()
+      });
+
+
+
+  </script>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>

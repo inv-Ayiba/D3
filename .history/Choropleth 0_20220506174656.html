@@ -1,0 +1,254 @@
+<style>
+  .cell:hover {
+    fill: #0300ff;
+    margin: 0.5em;
+  }
+  .rigthh{
+    position: absolute;
+    left: 300px;
+  }
+  .statesLines {
+    fill: none;
+    stroke: rgb(236, 10, 10);
+    stroke-linejoin: round;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">Choropleth</title>
+</head>
+
+<body>
+  <!-- <script src="/FCCbundle.js"></script> -->
+  <script src="/topojson.min.js"></script>
+  <!--  <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+  <p id="description" style="color:rgb(40, 151, 109);text-align:center;font-weight: bold;">United States Education </p>
+
+  <script>
+pallete2 =['#0500ff', '#0400ff', '#0300ff', '#0200ff', '#0100ff','#0000ff', '#0002ff', '#0012ff', '#0022ff', '#0032ff','#0044ff', '#0054ff', '#0064ff', '#0074ff', '#0084ff','#0094ff', '#00a4ff', '#00b4ff', '#00c4ff', '#00d4ff','#00e4ff', '#00fff4', '#00ffd0', '#00ffa8', '#00ff83','#00ff5c', '#00ff36', '#00ff10', '#17ff00', '#3eff00','#65ff00', '#8aff00', '#b0ff00', '#d7ff00', '#fdff00','#FFfa00', '#FFf000', '#FFe600', '#FFdc00', '#FFd200','#FFc800', '#FFbe00', '#FFb400', '#FFaa00', '#FFa000','#FF9600', '#FF8c00', '#FF8200', '#FF7800', '#FF6e00','#FF6400', '#FF5a00', '#FF5000', '#FF4600', '#FF3c00','#FF3200', '#FF2800', '#FF1e00', '#FF1400', '#FF0a00','#FF0000', '#FF0010', '#FF0020', '#FF0030', '#FF0040','#FF0050', '#FF0060', '#FF0070', '#FF0080', '#FF0090','#FF00A0', '#FF00B0', '#FF00C0', '#FF00D0', '#FF00E0','#FF00F0', '#FF01F0', '#FF02F0', '#FF03F0', '#FF04F0','#FF05F0', '#FF06F0', '#FF07F0', '#FF08F0', '#FF09F0','#FF0AF0', '#FF0BF0', '#FF0CF0', '#FF0DF0', '#FF0EF0']
+pallete = ["#0400ff","#00FF00","#FFFF00","#FF7F00","#4B0082","#FF0000"]
+
+var colouring = d3.scaleThreshold().domain(d3.range(2.6, 75.1, 14.5)).range(pallete);
+
+for (i=3;i<75;i++){
+console.log(colouring(i))}
+
+var pathywatty = d3.geoPath();
+fetch(
+  "/choropleth_map_counties.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    // json below
+    map_counties = res;
+    fetch(
+      "/choropleth_for_user_education.json"
+)
+  .then((res) => res.json())
+  .then((res) => {
+    // json below
+    user_education = res;
+    console.log("map_counties",map_counties,"user_education",user_education)
+    let box = d3
+      .select("body")
+      .append("div");
+ 
+    let tooltip = box
+      .append("div")
+      .attr("id", "tooltip");
+    const w = 1000;
+    const h = 900;
+    const padding = 60;
+    // const spaceBar =((w-60 )/42)
+    // const spaceBarw = 5
+    // pallete=["#FF0000", "#FF0a00", "#FF1400", "#FF1e00", "#FF2800", "#FF3200", "#FF3c00", "#FF4600", "#FF5000", "#FF5a00", "#FF6400", "#FF6e00", "#FF7800", "#FF8200", "#FF8c00", "#FF9600", "#FFa000", "#FFaa00", "#FFb400", "#FFbe00", "#FFc800", "#FFd200", "#FFdc00", "#FFe600", "#FFf000", "#FFfa00"]
+    // var color = d3.scaleOrdinal(pallete);
+    // ((w-60 )/49) 
+    // const xScale = d3.scaleTime()
+    //   .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+    //   .range([padding, w - padding]);
+
+    //   const yearXScale = d3.scaleLinear()
+    //   .domain([d3.min(dataset, (d) => d.year), d3.max(dataset, (d) => d.year)])
+    //   .range([padding, w - padding]);
+
+    // const yScale = d3.scaleLinear()
+    //   .domain([d3.max(dataset, (d) => d.month + 1),0])
+    //   .range([h - padding, padding]);
+
+    //   const colorScale = d3.scaleLinear()
+    //   .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+    //   //length greater than actual index
+    //   .range([0,pallete.length-1]);
+
+
+    const svg1 = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+    svg1.selectAll("path")
+      .data(topojson.feature(map_counties, map_counties.objects.counties).features)
+      .enter()
+      .append("path")
+      .attr('class','county')
+      // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
+      .attr('data-fips', (d) => d.id)
+
+      .attr('data-education', (d) =>
+       {
+         target =user_education.filter((obj)=>obj.fips ===d.id);
+      return target[0].bachelorsOrHigher;
+      }
+      )
+      
+
+
+      
+      .attr("fill", (d) =>
+       {
+         target =user_education.filter((obj)=>obj.fips ===d.id);
+      return colouring(target[0].bachelorsOrHigher);
+      }
+      )
+      .attr("d", pathywatty)
+      .on("mouseover", (d, i) =>
+        tooltip
+         
+        .style("display", "inline-block")
+        .attr("id","tooltip")
+        // .attr('data-education', (i) => {target =user_education.filter((obj)=>obj.fips ===i.id);return target[0].bachelorsOrHigher;})
+        
+           
+          .html((d) =>{target =user_education.filter((obj)=>obj.fips ===i.id);return (target[0]['area_name'] +', ' + target[0]['state'] +': ' + target[0].bachelorsOrHigher + '%' );})
+          
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none").attr("id","tooltip")
+        // .attr('data-education', (d) => {target =user_education.filter((obj)=>obj.fips ===d.id);return target[0].bachelorsOrHigher;})
+        
+      )
+      .append("title")
+      .text((i) =>  {
+         target =user_education.filter((obj)=>obj.fips ===i.id);
+      return (
+                target[0]['area_name'] +
+                ', ' +
+                target[0]['state'] +
+                ': ' +
+                target[0].bachelorsOrHigher +
+                '%'
+              );
+      }) ;
+
+      svg1
+      .append('path')
+      .datum(
+        topojson.mesh(map_counties, map_counties.objects.states, function (a, b) {
+          return a !== b;
+        })
+      )
+      .attr('class', 'statesLines')
+      .attr('d', pathywatty);
+
+    // const xAxis = d3.axisBottom(yearXScale);
+    // const yAxis = d3.axisLeft(yScale);
+
+    // svg.append("g")
+    //   .attr("id", "x-axis")
+    //   .attr("transform", "translate(0,"+(h-padding)+")")
+    //   .call(xAxis);
+
+    // svg.append("g")
+    //   .attr("id", "y-axis")
+    //   .attr("transform", "translate(" + padding + ",0" + ")")
+    //   .call(yAxis) ;
+
+      // legend begins
+
+  var x = d3.scaleLinear().domain([2.6, 75.1]).rangeRound([600, 860]);
+    
+    
+    // // console.log(dataTarget.length)
+
+    // legendLength=240  
+    // const moveUp = 325
+    // const legendxScale = d3.scaleLinear()
+    //   .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+    //   .range([padding, legendLength+padding]);
+
+
+    const svg2 = d3.select("svg")
+    .attr('id','legend')
+      .append("g");
+      
+      // .attr("width", w)
+      // .attr("height", h);
+
+    svg2.selectAll("rect")
+    
+    .data(
+      colouring.range().map(function (d) {
+        d = colouring.invertExtent(d);
+        if (d[0] === null) {
+          d[0] = x.domain()[0];
+        }
+        if (d[1] === null) {
+          d[1] = x.domain()[1];
+        }
+        return d;
+      })
+    )
+    .enter()
+    .append('rect')
+    .attr('height', 8)
+    .attr('x', function (d) {
+      //  console.log("kool",d);
+      //  console.log("x(d[1]) - x(d[0])",x(d[1]) - x(d[0]));
+
+      return x(d[0]);
+    })
+    .attr('y',8)
+    .attr('width', //33
+    function (d) { return d[0] && d[1] ? x(d[1]) - x(d[0]) : x(null);}
+    )
+    .attr('fill', function (d) {
+      return colouring(d[0]);
+    });
+    //rectangles for legend
+  svg2.append('text')
+    .attr('class', 'caption')
+    .attr('x', x.range()[0])
+    .attr('y', -10)
+    .attr('fill', '#000')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', 'bold');
+    // text for legend ?
+  
+    svg2.call(
+    d3
+      .axisBottom(x)
+      .tickSize(16)
+      .tickFormat(function (x) {
+        return Math.round(x) + '%';
+      })
+      .tickValues(colouring.domain())
+  )
+    .select('.domain')
+    .remove();
+//axis for legend?
+    
+} );
+
+});
+    //a print function to test scale.. hehe
+    
+ 
+  
+  </script>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>

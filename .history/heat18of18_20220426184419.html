@@ -1,0 +1,238 @@
+<style>
+  .cell:hover {
+    fill: black;
+    margin: 0.5em;
+  }
+  .rigthh{
+    position: absolute;
+    left: 300px;
+  }
+</style>
+
+<head>
+
+
+
+  <script src="/d3-7.3.0/package/dist/d3.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.4/d3.min.js"></script> -->
+  <title id="title">Heat</title>
+</head>
+
+<body>
+  <script src="/FCCbundle.js"></script>
+   <!-- <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script> -->
+  <p id="description" style="color:rgb(40, 60, 109);text-align:center;font-weight: bold;">Heat Map of The US from 1753-01 to 2015-09 </p>
+
+  <script>
+// Heat.json
+    // const dataset = [["1947-01-01", 243.1], ["1947-04-01", 246.3], ["1947-07-01", 250.1], ["1947-10-01", 260.3], ["1948-01-01", 266.2], etc
+    
+    fetch(
+  "/HeatFcc.json"
+)
+
+// fetch(
+//   "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json"
+// )
+  .then((res) => res.json())
+  .then((res) => {
+    // fix below
+    dataset = res.monthlyVariance;
+    // test this stage stash thing
+    
+    let box = d3
+      .select("body")
+      .append("div");
+fakeVariable = "delete after fork"
+docommit = "bllop"
+    let tooltip = box
+      .append("div")
+      .attr("id", "tooltip");
+    const w = 1610;
+    const h = 400;
+    const padding = 60;
+    const spaceBar =((w-60 )/42)
+    // const spaceBarw = 1490/263
+    const spaceBarx = (1490/263) 
+    const spaceBarw = 1490/263
+    const shifter = -2
+const monthBaby = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+ pallete =['#0500ff', '#0400ff', '#0300ff', '#0200ff', '#0100ff','#0000ff', '#0002ff', '#0012ff', '#0022ff', '#0032ff','#0044ff', '#0054ff', '#0064ff', '#0074ff', '#0084ff','#0094ff', '#00a4ff', '#00b4ff', '#00c4ff', '#00d4ff','#00e4ff', '#00fff4', '#00ffd0', '#00ffa8', '#00ff83','#00ff5c', '#00ff36', '#00ff10', '#17ff00', '#3eff00','#65ff00', '#8aff00', '#b0ff00', '#d7ff00', '#fdff00','#FFfa00', '#FFf000', '#FFe600', '#FFdc00', '#FFd200','#FFc800', '#FFbe00', '#FFb400', '#FFaa00', '#FFa000','#FF9600', '#FF8c00', '#FF8200', '#FF7800', '#FF6e00','#FF6400', '#FF5a00', '#FF5000', '#FF4600', '#FF3c00','#FF3200', '#FF2800', '#FF1e00', '#FF1400', '#FF0a00','#FF0000', '#FF0010', '#FF0020', '#FF0030', '#FF0040','#FF0050', '#FF0060', '#FF0070', '#FF0080', '#FF0090','#FF00A0', '#FF00B0', '#FF00C0', '#FF00D0', '#FF00E0','#FF00F0', '#FF01F0', '#FF02F0', '#FF03F0', '#FF04F0','#FF05F0', '#FF06F0', '#FF07F0', '#FF08F0', '#FF09F0','#FF0AF0', '#FF0BF0', '#FF0CF0', '#FF0DF0', '#FF0EF0']
+    var color = d3.scaleOrdinal(pallete);
+    // ((w-60 )/49) 
+    const xScale = d3.scaleTime()
+      .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+      .range([padding, w - padding]);
+
+      const yearXScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.year), d3.max(dataset, (d) => d.year)])
+      .range([padding, w - padding]);
+
+      const yearXScaleaxis = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.year), d3.max(dataset, (d) => d.year)])
+      //(0.5 * spaceBarw) to aligning axis labels
+      .range([padding + (0.5 * spaceBarw), (w - padding)+(0.5 * spaceBarw)]);
+      const yearXScale2 = d3.scaleBand()
+      .domain(
+        dataset.map(function (val) {
+        return val.year;
+      })
+    ).range([padding, w - padding]);
+    const yScale = d3.scaleLinear()
+      .domain([d3.max(dataset, (d) => d.month + 1),0])
+      .range([h - padding, padding]);
+
+      const colorScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+      //length greater than actual index
+      .range([0,pallete.length-1]);
+      
+      // const monthyScale = d3.scaleLinear()
+      // .domain([11,0]) // why 11,0 ?  
+      // .range([h - padding, padding]);
+      const monthyScale = d3.scaleBand()
+    .domain([11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
+    .rangeRound([h - padding, padding])
+    .padding(0);
+    const monthyScale2 = d3.scaleBand()
+    .domain([11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
+    .rangeRound([h - padding, padding]) ;
+attack=0
+console.log("monthyScale2",monthyScale2(attack))
+console.log("yscale",yScale(attack))
+
+    const svg = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+      // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
+      .attr('data-temp', (d) => d.variance)
+      .attr('data-month', (d) => d.month-1)
+      .attr('data-year', (d) => d.year)
+      // .attr("x", (d, i) => ((d.year-1753 )* spaceBarx)+60) 
+      // .attr("x", (d, i) => yearXScale(d.year) - (0.5*spaceBarw) ) 
+      .attr("x", (d, i) => yearXScale2(d.year) ) 
+
+
+//why -1 
+      .attr("y", (d) => (monthyScale2(d.month-1)))
+
+
+      // .attr("width",(d) => yearXScale2.bandwidth(d.year))
+      .attr("width",(d) => yearXScale2.bandwidth(d.year))
+      .attr("height", (d, i) => 23)
+      .attr("fill", (d) => pallete[parseInt(colorScale(d.variance))])
+      // .attr("fi", (d) => console.log(d.month-1,"koop"))
+      .attr("class", "cell")
+      .on("mouseover", (d, i) =>
+        tooltip
+          .style("display", "inline-block")
+
+          .html('data-var  :' +  i.variance+ 'data-month  :'+  i.month+ 'data-year  :' +  i.year +"colorvar: "+ pallete[parseInt(colorScale(i.variance))])
+          .attr("data-year", i.year)
+          .attr("class","rigthh")
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none"))
+      .append("title")
+      .text((d) => 'data-var  :' +  d.variance+ 'data-month  :'+  d.month+ 'data-year  :' +  d.year) ;
+
+    console.log("bannana split")
+
+    
+    const xAxis = d3.axisBottom()
+    .scale(yearXScale2)
+    .tickValues(
+      yearXScale2.domain().filter( (year)=> {
+        // set ticks to years divisible by 10
+        if (year % 25 === 0){return year};
+      })
+    );
+
+    const yAxis = d3.axisLeft(monthyScale).ticks(12).tickFormat(x => monthBaby[x]);
+
+    svg.append("g")
+      .attr("id", "x-axis")
+      .attr("transform", "translate(0,"+(h-padding)+")")
+      .call(xAxis);
+
+// console.log(h-padding);
+
+    svg.append("g")
+      .attr("id", "y-axis")
+      .attr("transform", "translate(" + padding + ",0" + ")")
+      .call(yAxis) ;
+
+      // legend begins
+    const dataRange = [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]
+    
+    const dataTarget = dataRange
+
+    legendLength=240  
+    const moveUp = 325
+    const legendxScale = d3.scaleLinear()
+      .domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)])
+      .range([padding, legendLength+padding]);
+
+
+    const svg2 = d3.select("body")
+      .append("svg")
+      .attr("width", w)
+      .attr("id", "legend")
+      .attr("height", h);
+
+    svg2.selectAll("rect")
+      .data(dataTarget)
+      .enter()
+      .append("rect")
+      
+      // .data(color.domain([d3.min(dataset, (d) => d.variance), d3.max(dataset, (d) => d.variance)]))
+      .attr("x", (d, i) => (i*legendLength/dataTarget.length) + 60)
+
+      .attr("y", yScale(12)-(10 + moveUp))
+
+
+      .attr("width", legendLength/dataTarget.length)
+      // .attr("width", 30)
+      .attr("height", (d, i) => 33)
+      .attr("fill", (d) => pallete[parseInt(colorScale(d))])
+      .attr("class", "bar")
+      .on("mouseover", (d, i) =>
+        tooltip
+          .style("display", "inline-block")
+
+          .html('data-var  :' +  i)
+          
+          .attr("class","rigthh")
+      )
+      .on("mouseout", (d) => tooltip.style("display", "none"))
+      .append("title")
+      .text((d) => 'data-var  :' +  d) ;
+
+
+
+
+    
+    const legendxAxis = d3.axisBottom(legendxScale);
+    svg2.append("g")
+      .attr("id", "lengend x-axis")
+      .attr("transform", "translate(0,"+(h-(padding + moveUp))+")")
+      .call(legendxAxis);
+   
+} );
+
+
+    //a print function to test scale.. hehe
+    function print() {
+      i = 1
+    }  
+ 
+  
+  </script>
+  <div class="theThing"></div>
+  <button onclick="print()" style="display:none;">click Me</button>
+</body>
