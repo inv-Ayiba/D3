@@ -1,4 +1,4 @@
-kick();
+kick(); 
 function kick() {
     clear();
     fetch(
